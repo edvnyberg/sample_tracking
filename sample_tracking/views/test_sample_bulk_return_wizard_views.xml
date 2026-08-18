@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_bulk_return_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.bulk.return.wizard.form</field>
+        <field name="model">test.sample.bulk.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Return Items">
+                <sheet>
+                    <div class="alert alert-info mb-3" role="alert">
+                        All checked items will be moved to <strong>Pending Return</strong> and logistics will be notified immediately.
+                        The same return method is applied to all selected items.
+                        Uncheck any item you want to skip.
+                    </div>
+                    <group>
+                        <field name="return_method"/>
+                    </group>
+
+                    <!-- Shipping details, only shown when shipping -->
+                    <group string="Shipping Details" invisible="return_method != 'ship'">
+                        <field name="courier_id"/>
+                        <field name="courier_account_number"/>
+                    </group>
+
+                    <!-- Delivery address, pre-filled from the customer and fully editable -->
+                    <group string="Delivery Address" invisible="return_method != 'ship'">
+                        <field name="ship_name"/>
+                        <field name="ship_street"/>
+                        <field name="ship_street2"/>
+                        <field name="ship_city"/>
+                        <field name="ship_zip"/>
+                        <field name="ship_state_id"/>
+                        <field name="ship_country_id"/>
+                    </group>
+
+                    <!-- Moving assistance -->
+                    <group string="Moving Assistance">
+                        <field name="requires_help_moving"/>
+                        <field name="moving_location_id" invisible="not requires_help_moving"/>
+                        <field name="on_pallet" invisible="not requires_help_moving"/>
+                        <field name="moving_notes" invisible="not requires_help_moving"/>
+                    </group>
+
+                    <field name="line_ids">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="include"/>
+                            <field name="line_id" string="Item Ref" options="{&quot;no_create&quot;: true, &quot;no_open&quot;: true}"/>
+                            <field name="product_name" readonly="1" string="Item"/>
+                            <field name="customer_name" readonly="1" string="Customer"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Submit Return Requests" type="object" class="oe_highlight"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server action bound to the line list so "Bulk Return" appears in the Actions menu -->
+    <record id="action_bulk_return_from_line_list" model="ir.actions.server">
+        <field name="name">Bulk Return</field>
+        <field name="model_id" ref="sample_tracking.model_test_sample_line"/>
+        <field name="binding_model_id" ref="sample_tracking.model_test_sample_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Bulk Return',
+    'res_model': 'test.sample.bulk.return.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': dict(env.context),
+}
+        </field>
+    </record>
+
+</data></odoo>

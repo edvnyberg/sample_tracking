@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sample_tracking</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Sample Tracking" name="sample_tracking"
+                     groups="sample_tracking.group_sample_manager"
+                     logo="/sample_tracking/static/description/icon.png">
+
+                    <block title="Sales Orders" name="sample_tracking_sales_container">
+                        <setting string="Auto-Create Samples"
+                                 help="Automatically create a sample batch when a sale order is confirmed.">
+                            <field name="sample_tracking_auto_create_samples"/>
+                            <div class="content-group" invisible="not sample_tracking_auto_create_samples">
+                                <div class="mt8 text-muted">Products that create samples on order confirmation. Leave empty to include all products.</div>
+                                <field name="sample_tracking_sample_product_ids" widget="many2many_checkboxes" class="mt8"/>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="Notifications" name="sample_tracking_notifications_container">
+                        <setting string="Logistics Email"
+                                 help="Recipient address for logistics notifications (pickup, return, cancellation).">
+                            <field name="sample_tracking_logistics_email" placeholder="e.g. logistics@example.com"/>
+                        </setting>
+                    </block>
+
+                    <block title="Scrapping" name="sample_tracking_scrap_container">
+                        <setting string="Default Scrap Approver"
+                                 help="Pre-filled approver when users open a scrap request. Can be changed per request.">
+                            <field name="sample_tracking_default_approver_id"/>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</data></odoo>

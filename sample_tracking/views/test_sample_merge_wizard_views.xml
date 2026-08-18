@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_merge_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.merge.wizard.form</field>
+        <field name="model">test.sample.merge.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-info" role="alert">
+                    Check the unit serials you want to pull onto this line. They can come from any sibling
+                    line in the same split group as long as it's in the same state. Source lines are removed
+                    once all of their units have been moved; partially-picked lines keep the rest.
+                </div>
+                <field name="line_id" invisible="1"/>
+                <field name="sample_id" invisible="1"/>
+                <field name="line_state" invisible="1"/>
+                <field name="split_group" invisible="1"/>
+                <group>
+                    <field name="product_name" readonly="1"/>
+                    <field name="current_quantity" readonly="1"/>
+                    <field name="resulting_quantity" readonly="1"/>
+                </group>
+                <field name="selected_unit_ids"
+                       domain="[('line_id.split_group', '=', split_group), ('line_id.state', '=', line_state), ('line_id', '!=', line_id)]">
+                    <list>
+                        <field name="serial_number"/>
+                        <field name="line_id"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" string="Merge" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

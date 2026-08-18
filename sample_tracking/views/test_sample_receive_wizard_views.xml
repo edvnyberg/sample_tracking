@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_receive_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.receive.wizard.form</field>
+        <field name="model">test.sample.receive.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Receive &amp; Inspect">
+                <field name="state" invisible="1"/>
+                <sheet>
+                    <!-- Step 1: fill in the receive form -->
+                    <div invisible="state != 'receive'">
+                        <div class="alert alert-info mb-3" role="alert">
+                            Confirm the received quantity for <strong><field name="product_name" readonly="1" nolabel="1" class="d-inline"/></strong>.
+                            Adjust the quantity if it differs from what was ordered and note the reason.
+                            Check <strong>Item is Damaged</strong> if there is physical damage.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="ordered_quantity" readonly="1"/>
+                                <field name="quantity"/>
+                            </group>
+                            <group>
+                                <field name="is_damaged"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="discrepancy_note"
+                                   placeholder="Describe the quantity difference"
+                                   invisible="quantity == ordered_quantity"/>
+                            <field name="inspection_notes"
+                                   placeholder="Describe the damage"
+                                   invisible="not is_damaged"
+                                   required="is_damaged"/>
+                        </group>
+                    </div>
+
+                    <!-- Step 2: confirmation summary before committing -->
+                    <div invisible="state != 'confirm'">
+                        <div class="alert alert-warning mb-3" role="alert">
+                            <strong>Review before confirming.</strong>
+                            Once confirmed the item will be marked as Received.
+                        </div>
+                        <group string="Summary">
+                            <field name="product_name" readonly="1"/>
+                            <field name="ordered_quantity" readonly="1"/>
+                            <field name="quantity" string="Quantity to Receive" readonly="1"/>
+                            <field name="is_damaged" readonly="1"/>
+                            <field name="discrepancy_note" readonly="1"
+                                   invisible="not discrepancy_note"/>
+                            <field name="inspection_notes" readonly="1"
+                                   invisible="not inspection_notes"/>
+                        </group>
+                        <div class="alert alert-info mt-3" role="alert"
+                             invisible="label_count == 0">
+                            <i class="fa fa-print me-1"/>
+                            <strong><field name="label_count" readonly="1" nolabel="1" class="d-inline"/></strong>
+                            serial label(s) will be sent to the label printer after confirming.
+                        </div>
+                        <div class="alert alert-secondary mt-3" role="alert"
+                             invisible="label_count != 0">
+                            <i class="fa fa-info-circle me-1"/>
+                            No unit serials are assigned to this item. No labels will be printed.
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_preview" string="Continue"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'receive'"/>
+                    <button special="cancel" string="Cancel"
+                            invisible="state != 'receive'"/>
+                    <button name="action_confirm" string="Confirm &amp; Print"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'confirm' or label_count == 0"/>
+                    <button name="action_confirm" string="Confirm"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'confirm' or label_count != 0"/>
+                    <button name="action_back" string="Back"
+                            type="object"
+                            invisible="state != 'confirm'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

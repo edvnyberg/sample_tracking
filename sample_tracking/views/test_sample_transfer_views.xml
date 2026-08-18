@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_transfer_list" model="ir.ui.view">
+        <field name="name">test.sample.transfer.list</field>
+        <field name="model">test.sample.transfer</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'pending'">
+                <field name="date"/>
+                <field name="sample_id"/>
+                <field name="line_id"/>
+                <field name="from_location_id"/>
+                <field name="to_location_id"/>
+                <field name="responsible_id" string="Transferred By"/>
+                <field name="to_user_id"/>
+                <field name="state" widget="badge"
+                    decoration-warning="state == 'pending'"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'declined'"
+                    decoration-muted="state == 'cancelled'"/>
+                <field name="notes" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_test_sample_transfer_form" model="ir.ui.view">
+        <field name="name">test.sample.transfer.form</field>
+        <field name="model">test.sample.transfer</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_accept_transfer"
+                        string="Accept Transfer"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'pending'"/>
+                    <button
+                        name="action_decline_transfer"
+                        string="Decline Transfer"
+                        type="object"
+                        class="btn-warning"
+                        confirm="Are you sure you want to decline this transfer?"
+                        invisible="state != 'pending'"/>
+                    <button
+                        name="action_cancel_transfer"
+                        string="Cancel Transfer"
+                        type="object"
+                        confirm="Are you sure you want to cancel this transfer? The item will return to its previous state."
+                        invisible="state != 'pending'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="state != 'pending'">
+                        <strong>Pending transfer:</strong> Review the details below and accept or decline using the buttons above.
+                        Accepting will make you the new responsible user for this item. Declining returns it to its previous state.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sample_id"/>
+                            <field name="line_id"/>
+                            <field name="date"/>
+                            <field name="responsible_id" string="Transferred By"/>
+                            <field name="to_user_id"/>
+                        </group>
+                        <group>
+                            <field name="from_location_id"/>
+                            <field name="to_location_id"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_test_sample_transfer" model="ir.actions.act_window">
+        <field name="name">Sample Transfers</field>
+        <field name="res_model">test.sample.transfer</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_test_sample_transfer_pending" model="ir.actions.act_window">
+        <field name="name">My Pending Transfers</field>
+        <field name="res_model">test.sample.transfer</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'pending'), ('to_user_id', '=', uid)]</field>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+
+    <record id="action_test_sample_transfer_all_pending" model="ir.actions.act_window">
+        <field name="name">All Pending Transfers</field>
+        <field name="res_model">test.sample.transfer</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+    </record>
+
+</data></odoo>

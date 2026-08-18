@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_line_form" model="ir.ui.view">
+        <field name="name">test.sample.line.form</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_accept_pending_transfer"
+                        string="Accept Transfer"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not pending_incoming_transfer_id"/>
+                    <button
+                        name="action_decline_pending_transfer"
+                        string="Decline Transfer"
+                        type="object"
+                        class="btn-warning"
+                        confirm="Are you sure you want to decline this transfer?"
+                        invisible="not pending_incoming_transfer_id"/>
+                    <button
+                        name="action_cancel_transfer"
+                        string="Cancel Transfer"
+                        type="object"
+                        confirm="Cancel this transfer? The item will return to its previous state."
+                        invisible="state != 'in_transfer' or pending_incoming_transfer_id"/>
+                    <button
+                        name="action_claim_item"
+                        string="Claim Item"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="state != 'incoming' or responsible_id"/>
+                    <button
+                        name="action_receive"
+                        string="Receive &amp; Inspect"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="state != 'incoming' or has_pending_transfer or not responsible_id"/>
+                    <button
+                        name="action_open_transfer_wizard"
+                        string="Transfer"
+                        type="object"
+                        invisible="state not in ('received', 'in_testing') or (state == 'in_testing' and inspection_result != 'good') or has_pending_transfer"/>
+                    <button
+                        name="action_pass_inspection"
+                        string="Start Testing"
+                        type="object"
+                        class="oe_highlight"
+                        confirm="Confirm this item has been inspected and is ready for testing? It will be moved to In Testing."
+                        invisible="state != 'received' or has_pending_transfer or not responsible_id"/>
+                    <button
+                        name="action_mark_tested"
+                        string="Ready for Return/Scrap"
+                        type="object"
+                        class="oe_highlight"
+                        confirm="Are you sure all testing is done and this/these sample(s) are ready to be returned or scrapped?"
+                        invisible="state != 'in_testing' or has_pending_transfer"/>
+                    <button
+                        name="action_return_to_customer"
+                        string="Return to Customer"
+                        type="object"
+                        invisible="state != 'tested' or has_pending_transfer"/>
+                    <button
+                        name="action_claim_return"
+                        string="Claim Return"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="state != 'pending_return' or responsible_id"/>
+                    <button
+                        name="action_confirm_shipment"
+                        string="Confirm Shipped"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="state != 'pending_return' or return_method != 'ship'"/>
+                    <button
+                        name="action_confirm_pickup"
+                        string="Confirm Pickup"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="state != 'pending_return' or return_method != 'pickup'"/>
+                    <button
+                        name="action_cancel_return"
+                        string="Cancel Return"
+                        type="object"
+                        class="btn-warning"
+                        confirm="Cancel this return? Item will go back to Tested and logistics will be notified."
+                        invisible="state != 'pending_return'"/>
+                    <button
+                        name="action_scrap"
+                        string="Scrap"
+                        type="object"
+                        confirm="This will permanently scrap this item. Continue?"
+                        invisible="state != 'tested' or pending_scrap_request_id or has_pending_transfer"/>
+                    <button
+                        name="action_approve_scrap"
+                        string="Approve Scrap"
+                        type="object"
+                        class="btn-danger"
+                        groups="sample_tracking.group_sample_manager"
+                        confirm="This will permanently scrap this item. Continue?"
+                        invisible="not pending_scrap_request_id or has_pending_transfer"/>
+                    <button
+                        name="action_reject_scrap"
+                        string="Reject Scrap"
+                        type="object"
+                        groups="sample_tracking.group_sample_manager"
+                        invisible="not pending_scrap_request_id or has_pending_transfer"/>
+                    <button
+                        name="action_cancel_scrap_request"
+                        string="Cancel Scrap Request"
+                        type="object"
+                        confirm="Cancel this scrap request? The item will return to Tested."
+                        invisible="state != 'scrap_pending' or has_pending_transfer"/>
+                    <button
+                        name="action_open_split_wizard"
+                        string="Split Quantity"
+                        type="object"
+                        invisible="state in ('returned', 'scrapped', 'scrap_pending', 'pending_return') or has_pending_transfer or quantity &lt;= 1"/>
+                    <button
+                        name="action_open_merge_wizard"
+                        string="Merge Lines"
+                        type="object"
+                        invisible="state in ('returned', 'scrapped', 'scrap_pending', 'pending_return') or not is_split or has_pending_transfer"/>
+                    <button
+                        name="action_reopen"
+                        string="Revert to Tested"
+                        type="object"
+                        class="btn-warning"
+                        groups="sample_tracking.group_sample_manager"
+                        confirm="This will revert the item back to Tested state. Continue?"
+                        invisible="state not in ('pending_return', 'returned', 'scrapped') or has_pending_transfer"/>
+                    <button
+                        name="action_revert_to_in_testing"
+                        string="Revert to In Testing"
+                        type="object"
+                        class="btn-warning"
+                        confirm="This will revert the item back to In Testing. Continue?"
+                        invisible="state != 'tested' or has_pending_transfer"/>
+                    <button
+                        name="action_revert_to_received"
+                        string="Revert to Received"
+                        type="object"
+                        class="btn-warning"
+                        groups="sample_tracking.group_sample_manager"
+                        confirm="This will revert the item to Received and clear inspection data. Continue?"
+                        invisible="state != 'in_testing' or has_pending_transfer"/>
+                    <button
+                        name="action_revert_to_incoming"
+                        string="Revert to Incoming"
+                        type="object"
+                        class="btn-warning"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        confirm="This will revert the item to Incoming and clear the received date. Continue?"
+                        invisible="state != 'received' or has_pending_transfer"/>
+                    <field name="state" widget="statusbar" statusbar_visible="incoming,received,in_testing,tested,pending_return,returned"/>
+                </header>
+                <sheet>
+                    <field name="pending_incoming_transfer_id" invisible="1"/>
+                    <field name="has_pending_transfer" invisible="1"/>
+                    <field name="is_split" invisible="1"/>
+                    <field name="pending_scrap_request_id" invisible="1"/>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="sample_id" readonly="1"/>
+                            <field name="sale_order_id" readonly="1"/>
+                            <field name="task_id" readonly="1" invisible="not task_id"/>
+                            <field name="product_name"/>
+                            <field name="ordered_quantity"/>
+                            <field name="quantity" string="Received Quantity"/>
+                            <field name="current_location_id"/>
+                            <field name="responsible_id"/>
+                        </group>
+                        <group>
+                            <field name="date_received"/>
+                            <field name="date_inspected" invisible="not date_inspected and state not in ('in_testing', 'tested', 'pending_return', 'returned', 'scrapped')"/>
+                            <field name="date_closed" invisible="state not in ('returned', 'scrapped')"/>
+                        </group>
+                    </group>
+                    <group string="Discrepancy" invisible="state != 'incoming' and discrepancy_type == 'none'">
+                        <field name="discrepancy_type"/>
+                        <field name="discrepancy_note" nolabel="1" invisible="discrepancy_type == 'none'" required="state == 'incoming' and discrepancy_type != 'none'"/>
+                    </group>
+                    <group string="Inspection Notes" invisible="inspection_result == 'good' and not inspection_notes">
+                        <field name="inspection_notes" nolabel="1" placeholder="Notes on inspection result..."/>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Return / Closure" invisible="state not in ('tested', 'pending_return', 'returned', 'scrapped')">
+                        <field name="return_method" invisible="state == 'scrapped'"
+                               required="state == 'returned'"/>
+                        <field name="return_courier_id" readonly="1" invisible="return_method != 'ship'"/>
+                        <field name="customer_courier_account" readonly="1" invisible="return_method != 'ship'"/>
+                        <field name="customer_signature"
+                               widget="signature"
+                               invisible="return_method != 'pickup'"
+                               string="Customer Signature"
+                               nolabel="1"
+                               colspan="2"/>
+                        <field name="tracking_number" invisible="return_method != 'ship'"/>
+                        <field name="closure_notes" nolabel="1" colspan="2" placeholder="Optional closure notes..."/>
+                    </group>
+                    <notebook>
+                        <page string="Transfer History" name="transfer_history">
+                            <field name="transfer_ids" readonly="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="from_location_id"/>
+                                    <field name="to_location_id"/>
+                                    <field name="responsible_id" string="Transferred By"/>
+                                    <field name="to_user_id" string="New Owner"/>
+                                    <field name="state" widget="badge"
+                                        decoration-warning="state == 'pending'"
+                                        decoration-success="state == 'done'"
+                                        decoration-danger="state == 'declined'"
+                                        decoration-muted="state == 'cancelled'"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Scrap Requests" name="scrap_requests" invisible="not scrap_request_ids">
+                            <field name="scrap_request_ids" readonly="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="state" widget="badge"
+                                        decoration-warning="state == 'pending'"
+                                        decoration-success="state == 'approved'"
+                                        decoration-danger="state == 'rejected'"
+                                        decoration-muted="state == 'cancelled'"/>
+                                    <field name="requested_by_id"/>
+                                    <field name="rejection_reason" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Unit Serials" name="unit_serials">
+                            <field name="unit_ids" readonly="1" create="0" delete="0">
+                                <list>
+                                    <field name="serial_number"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban view, used by My Items dashboard -->
+    <record id="view_test_sample_line_kanban" model="ir.ui.view">
+        <field name="name">test.sample.line.kanban</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <kanban create="0" edit="0" delete="0">
+                <field name="product_name"/>
+                <field name="sample_id"/>
+                <field name="customer_id"/>
+                <field name="name"/>
+                <field name="quantity"/>
+                <field name="ordered_quantity"/>
+                <field name="state"/>
+                <field name="inspection_result"/>
+                <field name="current_location_id"/>
+                <field name="discrepancy_type"/>
+                <field name="pending_incoming_transfer_id"/>
+                <field name="kanban_state_group"/>
+                <templates>
+                    <t t-name="card">
+                        <!-- Product name -->
+                        <div class="fw-bold mb-1">
+                            <t t-esc="record.product_name.value"/>
+                        </div>
+                        <!-- Item ref -->
+                        <div class="text-muted small mb-1">
+                            <t t-esc="record.name.value"/>
+                        </div>
+                        <!-- Sample + customer context -->
+                        <div class="text-muted small mb-2">
+                            <i class="fa fa-flask me-1"/>
+                            <t t-esc="record.sample_id.value"/>
+                            <t t-if="record.customer_id.value">
+                                &#160;·&#160;<t t-esc="record.customer_id.value"/>
+                            </t>
+                        </div>
+                        <!-- Qty + location -->
+                        <div class="text-muted small d-flex flex-wrap gap-3 mb-2">
+                            <span>
+                                <i class="fa fa-cubes me-1"/>
+                                <t t-esc="record.quantity.value"/>
+                                <t t-if="record.ordered_quantity.raw_value">
+                                    / <t t-esc="record.ordered_quantity.value"/> ordered
+                                </t>
+                            </span>
+                            <t t-if="record.current_location_id.value">
+                                <span>
+                                    <i class="fa fa-map-marker me-1"/>
+                                    <t t-esc="record.current_location_id.value"/>
+                                </span>
+                            </t>
+                        </div>
+                        <!-- Discrepancy + damaged badges -->
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <t t-if="record.inspection_result.raw_value == 'damaged'">
+                                <span class="badge text-bg-danger">
+                                    <i class="fa fa-exclamation-triangle me-1"/>Damaged
+                                </span>
+                            </t>
+                            <t t-if="record.discrepancy_type.raw_value and record.discrepancy_type.raw_value != 'none'">
+                                <span class="badge text-bg-warning">
+                                    <i class="fa fa-warning me-1"/>
+                                    <t t-esc="record.discrepancy_type.value"/>
+                                </span>
+                            </t>
+                            <t t-if="record.kanban_state_group.raw_value == 'transfer_pending'">
+                                <span class="badge text-bg-warning">
+                                    <i class="fa fa-exchange me-1"/>Transfer Pending
+                                </span>
+                            </t>
+                            <t t-if="record.pending_incoming_transfer_id.raw_value">
+                                <span class="badge text-bg-info">
+                                    <i class="fa fa-arrow-circle-down me-1"/>Transfer Incoming
+                                </span>
+                            </t>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- List view, My Items & manager overview -->
+    <record id="view_test_sample_line_list" model="ir.ui.view">
+        <field name="name">test.sample.line.list</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <list expand="1"
+                decoration-muted="state in ('returned', 'scrapped')">
+                <header>
+                    <button name="action_open_bulk_transfer_wizard" string="Bulk Transfer" type="object"/>
+                    <button name="action_open_bulk_return_wizard" string="Bulk Return" type="object"/>
+                    <button name="action_open_bulk_scrap_wizard" string="Bulk Scrap" type="object"/>
+                    <button name="action_open_bulk_receive_from_list_wizard" string="Bulk Receive &amp; Inspect" type="object"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"/>
+                    <button name="action_bulk_merge_marked" string="Bulk Merge" type="object"
+                        confirm="Merge marked lines that share a split group back together? Groups with fewer than 2 marked lines, or mismatched states, will be skipped."/>
+                </header>
+                <field name="pending_incoming_transfer_id" column_invisible="1"/>
+                <field name="has_pending_transfer" column_invisible="1"/>
+                <field name="pending_scrap_request_id" column_invisible="1"/>
+                <field name="is_split" column_invisible="1"/>
+                <field name="inspection_result" column_invisible="1"/>
+                <field name="name" string="Item Ref" optional="show"/>
+                <field name="product_name"/>
+                <field name="sample_id" column_invisible="1"/>
+                <field name="sale_order_id" optional="show"/>
+                <field name="customer_id"/>
+                <field name="quantity" string="Received Qty"/>
+                <field name="ordered_quantity" optional="hide"/>
+                <field name="current_location_id"/>
+                <field name="responsible_id"/>
+                <field name="state" widget="badge"
+                    decoration-info="state == 'received'"
+                    decoration-warning="state in ('in_testing', 'in_transfer', 'pending_return')"
+                    decoration-danger="state in ('scrapped', 'scrap_pending')"
+                    decoration-primary="state == 'tested'"
+                    decoration-success="state == 'returned'"/>
+                <field name="kanban_state_group" string="Transfer Status" widget="badge"
+                    decoration-warning="kanban_state_group == 'transfer_pending'"
+                    optional="hide"/>
+                <!-- Buttons ordered by state flow so each state's buttons start at the leftmost slot -->
+                <button name="action_claim_item" string="Claim Item" type="object"
+                    icon="fa-hand-o-right" title="Claim Item"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    invisible="state != 'incoming' or responsible_id"/>
+                <button name="action_receive" string="Receive &amp; Inspect" type="object"
+                    icon="fa-inbox" title="Receive &amp; Inspect"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    invisible="state != 'incoming' or has_pending_transfer or not responsible_id"/>
+                <button name="action_open_transfer_wizard" string="Transfer" type="object"
+                    icon="fa-exchange" title="Transfer"
+                    invisible="state not in ('received', 'in_testing') or (state == 'in_testing' and inspection_result != 'good') or has_pending_transfer"/>
+                <button name="action_pass_inspection" string="Start Testing" type="object"
+                    icon="fa-flask" class="btn-primary" title="Start Testing"
+                    confirm="Confirm this item has been inspected and is ready for testing? It will be moved to In Testing."
+                    invisible="state != 'received' or has_pending_transfer or not responsible_id"/>
+                <button name="action_mark_tested" string="Ready for Return/Scrap" type="object"
+                    icon="fa-check-circle" class="btn-success" title="Ready for Return/Scrap"
+                    confirm="Are you sure all testing is done and this/these sample(s) are ready to be returned or scrapped?"
+                    invisible="state != 'in_testing' or has_pending_transfer"/>
+                <button name="action_accept_pending_transfer" string="Accept Transfer" type="object"
+                    icon="fa-check" class="btn-success" title="Accept Transfer"
+                    invisible="not pending_incoming_transfer_id"/>
+                <button name="action_decline_pending_transfer" string="Decline Transfer" type="object"
+                    icon="fa-times" class="btn-danger" title="Decline Transfer"
+                    confirm="Are you sure you want to decline this transfer?"
+                    invisible="not pending_incoming_transfer_id"/>
+                <button name="action_cancel_transfer" string="Cancel Transfer" type="object"
+                    icon="fa-ban" title="Cancel Transfer"
+                    confirm="Cancel this transfer? The item will return to its previous state."
+                    invisible="state != 'in_transfer' or pending_incoming_transfer_id"/>
+                <button name="action_return_to_customer" string="Return to Customer" type="object"
+                    icon="fa-undo" title="Return to Customer"
+                    invisible="state != 'tested' or has_pending_transfer"/>
+                <button name="action_claim_return" string="Claim Return" type="object"
+                    icon="fa-hand-o-right" class="oe_highlight" title="Claim Return"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    invisible="state != 'pending_return' or responsible_id"/>
+                <button name="action_confirm_shipment" string="Confirm Shipped" type="object"
+                    icon="fa-truck" class="btn-success" title="Confirm item handed to courier"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    confirm="Confirm this item has been handed to the courier?"
+                    invisible="state != 'pending_return' or return_method != 'ship'"/>
+                <button name="action_confirm_pickup" string="Confirm Pickup" type="object"
+                    icon="fa-check-circle" class="btn-success" title="Confirm customer collected item"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    invisible="state != 'pending_return' or return_method != 'pickup'"/>
+                <button name="action_cancel_return" string="Cancel Return" type="object"
+                    icon="fa-times" class="btn-warning" title="Cancel return and notify logistics"
+                    confirm="Cancel this return? Item will go back to Tested and logistics will be notified."
+                    invisible="state != 'pending_return'"/>
+                <button name="action_scrap" string="Scrap" type="object"
+                    icon="fa-trash" class="btn-danger" title="Scrap"
+                    confirm="This will permanently scrap this item. Continue?"
+                    invisible="state != 'tested' or has_pending_transfer"/>
+                <button name="action_open_split_wizard" string="Split Quantity" type="object"
+                    icon="fa-scissors" title="Split Quantity"
+                    invisible="state in ('returned', 'scrapped', 'scrap_pending', 'pending_return') or has_pending_transfer or quantity &lt;= 1"/>
+                <button name="action_open_merge_wizard" string="Merge Lines" type="object"
+                    icon="fa-compress" title="Merge Lines"
+                    invisible="state in ('returned', 'scrapped', 'scrap_pending', 'pending_return') or not is_split or has_pending_transfer"/>
+                <button name="action_merge_all_siblings" string="Merge All Back" type="object"
+                    icon="fa-object-group" title="Merge All Siblings Back"
+                    confirm="This will merge all sibling lines back into this one. Continue?"
+                    invisible="state in ('returned', 'scrapped', 'scrap_pending', 'pending_return') or not is_split or has_pending_transfer"/>
+                <button name="action_approve_scrap" string="Approve Scrap" type="object"
+                    icon="fa-check" class="btn-danger" title="Approve Scrap"
+                    groups="sample_tracking.group_sample_manager"
+                    confirm="This will permanently scrap this item. Continue?"
+                    invisible="not pending_scrap_request_id or has_pending_transfer"/>
+                <button name="action_reject_scrap" string="Reject Scrap" type="object"
+                    icon="fa-ban" title="Reject Scrap"
+                    groups="sample_tracking.group_sample_manager"
+                    invisible="not pending_scrap_request_id or has_pending_transfer"/>
+                <button name="action_cancel_scrap_request" string="Cancel Scrap Request" type="object"
+                    icon="fa-times-circle" title="Cancel Scrap Request"
+                    confirm="Cancel this scrap request? The item will return to Tested."
+                    invisible="state != 'scrap_pending' or has_pending_transfer"/>
+                <button name="action_reopen" string="Revert to Tested" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to Tested"
+                    groups="sample_tracking.group_sample_manager"
+                    confirm="This will revert the item back to Tested state. Continue?"
+                    invisible="state not in ('pending_return', 'returned', 'scrapped') or has_pending_transfer"/>
+                <button name="action_revert_to_in_testing" string="Revert to In Testing" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to In Testing"
+                    confirm="This will revert the item back to In Testing. Continue?"
+                    invisible="state != 'tested' or has_pending_transfer"/>
+                <button name="action_revert_to_received" string="Revert to Received" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to Received"
+                    groups="sample_tracking.group_sample_manager"
+                    confirm="This will revert the item to Received and clear inspection data. Continue?"
+                    invisible="state != 'in_testing' or has_pending_transfer"/>
+                <button name="action_revert_to_incoming" string="Revert to Incoming" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to Incoming"
+                    groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                    confirm="This will revert the item to Incoming and clear the received date. Continue?"
+                    invisible="state != 'received' or has_pending_transfer"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- List view for Returned items -->
+    <record id="view_test_sample_line_list_returned" model="ir.ui.view">
+        <field name="name">test.sample.line.list.returned</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="product_name"/>
+                <field name="sample_id"/>
+                <field name="sale_order_id" optional="show"/>
+                <field name="customer_id"/>
+                <field name="quantity" string="Received Qty"/>
+                <field name="date_closed" string="Date Returned"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'returned'"/>
+                <button name="action_reopen" string="Revert to Tested" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to Tested"
+                    groups="sample_tracking.group_sample_manager"
+                    confirm="This will revert the item back to Tested state. Continue?"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- List view for Scrapped items -->
+    <record id="view_test_sample_line_list_scrapped" model="ir.ui.view">
+        <field name="name">test.sample.line.list.scrapped</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="product_name"/>
+                <field name="sample_id"/>
+                <field name="sale_order_id" optional="show"/>
+                <field name="customer_id"/>
+                <field name="quantity" string="Received Qty"/>
+                <field name="date_closed" string="Date Scrapped"/>
+                <field name="state" widget="badge"
+                    decoration-danger="state == 'scrapped'"/>
+                <button name="action_reopen" string="Revert to Tested" type="object"
+                    icon="fa-rotate-left" class="btn-warning" title="Revert to Tested"
+                    groups="sample_tracking.group_sample_manager"
+                    confirm="This will revert the item back to Tested state. Continue?"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_test_sample_line_search" model="ir.ui.view">
+        <field name="name">test.sample.line.search</field>
+        <field name="model">test.sample.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_name"/>
+                <field name="sample_id"/>
+                <field name="customer_id"/>
+                <field name="responsible_id"/>
+                <filter name="my_items" string="My Items"
+                    domain="[('responsible_id', '=', uid)]"/>
+                <filter name="active" string="Active"
+                    domain="[('state', 'not in', ['returned', 'scrapped'])]"/>
+                <separator/>
+                <filter name="incoming" string="Incoming"
+                    domain="[('state', '=', 'incoming')]"/>
+                <filter name="in_testing" string="In Testing"
+                    domain="[('state', '=', 'in_testing')]"/>
+                <filter name="damaged" string="Damaged"
+                    domain="[('inspection_result', '=', 'damaged')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_responsible" string="Responsible" context="{'group_by': 'responsible_id'}"/>
+                    <filter name="group_sample" string="Sample" context="{'group_by': 'sample_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action: My Items dashboard -->
+    <record id="action_my_sample_items" model="ir.actions.act_window">
+        <field name="name">My Items</field>
+        <field name="res_model">test.sample.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">['|', '|', ('responsible_id', '=', uid), ('transfer_ids.to_user_id', '=', uid), ('scrap_request_ids', 'any', [('approver_id', '=', uid), ('state', '=', 'pending')])]</field>
+        <field name="context">{'search_default_active': 1, 'group_by': ['state']}</field>
+    </record>
+
+    <!-- Action: Logistics Items (incoming, received, pending return) -->
+    <record id="action_logistics_sample_items" model="ir.actions.act_window">
+        <field name="name">Logistics Items</field>
+        <field name="res_model">test.sample.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['incoming', 'received', 'pending_return'])]</field>
+        <field name="context">{'group_by': ['logistics_group']}</field>
+    </record>
+
+    <!-- Action: All Items (manager overview) -->
+    <record id="action_all_sample_items" model="ir.actions.act_window">
+        <field name="name">All Items</field>
+        <field name="res_model">test.sample.line</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_active': 1, 'group_by': ['state']}</field>
+    </record>
+
+    <!-- Action: Returned Items -->
+    <record id="action_returned_sample_items" model="ir.actions.act_window">
+        <field name="name">Returned Items</field>
+        <field name="res_model">test.sample.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'returned')]</field>
+        <field name="context">{}</field>
+    </record>
+    <record id="action_returned_sample_items_list_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_test_sample_line_list_returned"/>
+        <field name="act_window_id" ref="action_returned_sample_items"/>
+    </record>
+
+    <!-- Action: Scrapped Items -->
+    <record id="action_scrapped_sample_items" model="ir.actions.act_window">
+        <field name="name">Scrapped Items</field>
+        <field name="res_model">test.sample.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'scrapped')]</field>
+        <field name="context">{}</field>
+    </record>
+    <record id="action_scrapped_sample_items_list_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_test_sample_line_list_scrapped"/>
+        <field name="act_window_id" ref="action_scrapped_sample_items"/>
+    </record>
+
+</data></odoo>

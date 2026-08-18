@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_split_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.split.wizard.form</field>
+        <field name="model">test.sample.split.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-info" role="alert">
+                    Check the exact units you want to split off into a new line.
+                    Unchecked units will remain on the original item.
+                </div>
+                <field name="line_id" invisible="1"/>
+                <group>
+                    <field name="product_name" readonly="1"/>
+                    <field name="original_quantity" readonly="1"/>
+                    <field name="split_quantity" readonly="1" string="Splitting Off"/>
+                    <field name="remaining_quantity" readonly="1" string="Remaining"/>
+                </group>
+                <field name="selected_unit_ids"
+                       widget="many2many_checkboxes"
+                       domain="[('line_id', '=', line_id)]"
+                       string="Select units to split off"
+                       nolabel="1"/>
+                <footer>
+                    <button name="action_confirm" string="Split Selected" type="object" class="oe_highlight"/>
+                    <button name="action_explode" string="Explode to Individual Units" type="object"
+                            confirm="This will create one line per unit. Continue?"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

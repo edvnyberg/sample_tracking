@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <menuitem
+        id="menu_sample_tracking_root"
+        name="Sample Tracking"
+        groups="sample_tracking.group_sample_user"
+        sequence="10"/>
+
+    <!-- My Items: first menu, becomes the app landing page -->
+    <menuitem
+        id="menu_my_sample_items"
+        name="My Items"
+        parent="menu_sample_tracking_root"
+        action="sample_tracking.action_my_sample_items"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_logistics_sample_items"
+        name="Logistics Items"
+        parent="menu_sample_tracking_root"
+        action="sample_tracking.action_logistics_sample_items"
+        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_sample_tracking_samples"
+        name="Samples"
+        parent="menu_sample_tracking_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_test_samples"
+        name="All Samples"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_test_sample"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_all_sample_items"
+        name="All Items"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_all_sample_items"
+        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+        sequence="15"/>
+
+    <menuitem
+        id="menu_returned_sample_items"
+        name="Returned Items"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_returned_sample_items"
+        sequence="17"/>
+
+    <menuitem
+        id="menu_scrapped_sample_items"
+        name="Scrapped Items"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_scrapped_sample_items"
+        sequence="18"/>
+
+    <menuitem
+        id="menu_test_sample_transfers"
+        name="Transfers"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_test_sample_transfer"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_test_sample_transfers_pending"
+        name="My Pending Transfers"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_test_sample_transfer_pending"
+        sequence="30"/>
+
+    <menuitem
+        id="menu_test_sample_transfers_all_pending"
+        name="All Pending Transfers"
+        parent="menu_sample_tracking_samples"
+        action="sample_tracking.action_test_sample_transfer_all_pending"
+        groups="sample_tracking.group_sample_manager"
+        sequence="35"/>
+
+    <menuitem
+        id="menu_sample_tracking_config"
+        name="Configuration"
+        parent="menu_sample_tracking_root"
+        groups="sample_tracking.group_sample_manager"
+        sequence="100"/>
+
+    <menuitem
+        id="menu_sample_locations"
+        name="Locations"
+        parent="menu_sample_tracking_config"
+        action="sample_tracking.action_test_sample_location"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_sample_couriers"
+        name="Couriers"
+        parent="menu_sample_tracking_config"
+        action="sample_tracking.action_test_sample_courier"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_sample_tracking_settings"
+        name="Settings"
+        parent="menu_sample_tracking_config"
+        action="base_setup.action_general_configuration"
+        groups="sample_tracking.group_sample_manager"
+        sequence="30"/>
+
+</data></odoo>

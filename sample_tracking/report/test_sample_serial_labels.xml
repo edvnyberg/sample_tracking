@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <!-- Serial number label report. No binding_model_id: called programmatically
+         from the receive wizards only. Model is test.sample.line so the report
+         URL can be called with one or more line IDs directly. -->
+    <record id="action_report_serial_labels" model="ir.actions.report">
+        <field name="name">Serial Number Labels</field>
+        <field name="model">test.sample.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sample_tracking.report_serial_labels</field>
+        <field name="report_file">sample_tracking.report_serial_labels</field>
+    </record>
+
+    <!-- PDF template: one label block per unit across all passed lines. -->
+    <template id="report_serial_labels">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="line">
+                <t t-foreach="line.unit_ids" t-as="unit">
+                    <div style="font-family: monospace; font-size: 14pt; padding: 8mm; border: 1px solid #ccc; margin: 4mm; display: inline-block; width: 80mm;">
+                        <div><strong>BATCH:</strong> <t t-esc="line.sample_id.name"/></div>
+                        <div><strong>ITEM:</strong> <t t-esc="unit.product_name"/></div>
+                        <div><strong>SN:</strong> <t t-esc="unit.serial_number"/></div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</data></odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_scrap_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.scrap.wizard.form</field>
+        <field name="model">test.sample.scrap.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-warning" role="alert">
+                    This submits a scrap approval request to the selected manager.
+                    The item will move to <strong>Scrap Pending</strong> while awaiting review.
+                    If approved, the item is permanently scrapped. If rejected, it returns to <strong>Tested</strong>.
+                </div>
+                <group>
+                    <field name="product_name" readonly="1"/>
+                    <field name="approver_id"/>
+                </group>
+                <group string="Moving Assistance">
+                    <field name="requires_help_moving"/>
+                    <field name="moving_location_id" invisible="not requires_help_moving"/>
+                    <field name="on_pallet" invisible="not requires_help_moving"/>
+                    <field name="moving_notes" invisible="not requires_help_moving"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Submit Request" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

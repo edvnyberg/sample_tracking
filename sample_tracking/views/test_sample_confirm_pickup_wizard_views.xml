@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_confirm_pickup_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.confirm.pickup.wizard.form</field>
+        <field name="model">test.sample.confirm.pickup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Customer Pickup">
+                <div class="alert alert-info" role="alert">
+                    Confirm that <strong><field name="product_name" readonly="1" nolabel="1" class="d-inline"/></strong>
+                    has been collected by the customer. Optionally capture their signature below.
+                </div>
+                <group>
+                    <field name="customer_signature"
+                           widget="signature"
+                           string="Customer Signature (optional)"
+                           nolabel="1"
+                           colspan="2"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm Pickup"
+                            type="object" class="oe_highlight"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

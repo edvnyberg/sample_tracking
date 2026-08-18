@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_bulk_transfer_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.bulk.transfer.wizard.form</field>
+        <field name="model">test.sample.bulk.transfer.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Transfer Items">
+                <sheet>
+                    <div class="alert alert-info mb-3" role="alert">
+                        All checked items will be marked as <strong>In Transfer</strong> and the new owner will be notified by an activity for each item.
+                        Items are locked until the recipient accepts or declines each transfer individually.
+                        Only items that are In Testing, have passed inspection, and have no pending transfer are shown.
+                        Uncheck any item you want to skip.
+                    </div>
+                    <group>
+                        <field name="to_location_id"/>
+                        <field name="to_user_id"/>
+                        <field name="notes"/>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="include"/>
+                            <field name="line_id" string="Item Ref" options="{&quot;no_create&quot;: true, &quot;no_open&quot;: true}"/>
+                            <field name="product_name" readonly="1" string="Item"/>
+                            <field name="current_location_id" readonly="1" string="Current Location"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Transfer Selected"
+                            type="object" class="oe_highlight"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server action bound to the line list so "Bulk Transfer" appears in the Actions menu -->
+    <record id="action_bulk_transfer_from_line_list" model="ir.actions.server">
+        <field name="name">Bulk Transfer</field>
+        <field name="model_id" ref="sample_tracking.model_test_sample_line"/>
+        <field name="binding_model_id" ref="sample_tracking.model_test_sample_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Bulk Transfer',
+    'res_model': 'test.sample.bulk.transfer.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': dict(env.context),
+}
+        </field>
+    </record>
+
+</data></odoo>

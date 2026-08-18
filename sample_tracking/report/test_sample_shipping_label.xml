@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Register the report action. No binding_model_id means it won't appear
+         as a print button anywhere. It is only called programmatically from
+         the return wizard when the user confirms a shipment. -->
+    <record id="action_report_shipping_label" model="ir.actions.report">
+        <field name="name">Shipping Document</field>
+        <field name="model">test.sample.return.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sample_tracking.report_shipping_label_document</field>
+        <field name="report_file">sample_tracking.report_shipping_label_document</field>
+    </record>
+
+    <!-- QWeb template that produces the shipping document PDF.
+         "docs" is a list containing the wizard record.
+         We use web.external_layout to include the company letterhead. -->
+    <template id="report_shipping_label_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <h2 class="mt-4">Shipping Document</h2>
+                        <hr/>
+
+                        <!-- Summary table: item, sample ref, courier, date -->
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>Item:</strong></td>
+                                        <td><t t-esc="o.product_name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sample Ref:</strong></td>
+                                        <td><t t-esc="o.line_id.sample_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Courier:</strong></td>
+                                        <td><strong><t t-esc="o.courier_id.name"/></strong></td>
+                                    </tr>
+                                    <tr t-if="o.sale_order_id">
+                                        <td><strong>Sale Order:</strong></td>
+                                        <td><t t-esc="o.sale_order_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date:</strong></td>
+                                        <td><t t-esc="o.create_date.strftime('%d %B %Y')"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Delivery address block -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h4>Delivery Address</h4>
+                                <address style="font-size: 1.1em; line-height: 2.0;">
+                                    <t t-if="o.ship_name">
+                                        <strong><t t-esc="o.ship_name"/></strong><br/>
+                                    </t>
+                                    <t t-if="o.ship_street">
+                                        <t t-esc="o.ship_street"/><br/>
+                                    </t>
+                                    <t t-if="o.ship_street2">
+                                        <t t-esc="o.ship_street2"/><br/>
+                                    </t>
+                                    <t t-if="o.ship_zip or o.ship_city">
+                                        <t t-if="o.ship_zip">
+                                            <t t-esc="o.ship_zip"/>
+                                            <t t-if="o.ship_city"> </t>
+                                        </t>
+                                        <t t-if="o.ship_city"><t t-esc="o.ship_city"/></t>
+                                        <br/>
+                                    </t>
+                                    <t t-if="o.ship_state_id">
+                                        <t t-esc="o.ship_state_id.name"/><br/>
+                                    </t>
+                                    <t t-if="o.ship_country_id">
+                                        <t t-esc="o.ship_country_id.name"/>
+                                    </t>
+                                </address>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

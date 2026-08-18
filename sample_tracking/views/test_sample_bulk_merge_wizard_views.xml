@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_bulk_merge_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.bulk.merge.wizard.form</field>
+        <field name="model">test.sample.bulk.merge.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Merge Split Lines">
+                <sheet>
+                    <div class="alert alert-warning mb-3" role="alert" invisible="not skipped_info">
+                        <i class="fa fa-exclamation-triangle me-1"/>
+                        <field name="skipped_info" readonly="1" nolabel="1" class="d-inline"/>
+                    </div>
+                    <div class="alert alert-info mb-3" role="alert">
+                        Each row below represents a group of split lines that will be merged into one.
+                        Select which line to keep. All others will be absorbed into it and deleted.
+                    </div>
+                    <field name="group_ids">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="split_group" column_invisible="1"/>
+                            <field name="product_name" readonly="1" string="Product / Item"/>
+                            <field name="line_ids" widget="many2many_tags" readonly="1" string="Lines"/>
+                            <field name="keeper_line_id" string="Keep This Line"
+                                   domain="[('id', 'in', line_ids)]"
+                                   required="1"/>
+                            <field name="resulting_quantity" readonly="1" string="Resulting Qty"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Merge All"
+                            type="object" class="oe_highlight"
+                            confirm="This will permanently delete the absorbed lines. Continue?"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_bulk_receive_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.bulk.receive.wizard.form</field>
+        <field name="model">test.sample.bulk.receive.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Receive Items">
+                <field name="state" invisible="1"/>
+                <sheet>
+                    <div invisible="state == 'print'">
+                        <div class="alert alert-info mb-3" role="alert">
+                            Review each item below. Change the <strong>Received Qty</strong> if it differs
+                            from what was ordered and add a note explaining why. Fill in
+                            <strong>Damage Notes</strong> if an item has physical damage. Leave it blank
+                            if the item is in good condition.
+                        </div>
+                        <field name="line_ids">
+                            <list editable="bottom" create="0" delete="0">
+                                <field name="line_id" column_invisible="1"/>
+                                <field name="product_name" readonly="1" string="Item"/>
+                                <field name="ordered_quantity" readonly="1" string="Ordered"/>
+                                <field name="quantity" string="Received"/>
+                                <field name="discrepancy_note" string="Discrepancy Notes"
+                                       placeholder="Describe quantity difference"/>
+                                <field name="inspection_notes" string="Damage Notes"
+                                       placeholder="Leave blank if no damage"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div invisible="state != 'print'">
+                        <div class="alert alert-success mb-3" role="alert">
+                            All items have been received. Print a label for each unit below using the label printer.
+                        </div>
+                        <field name="print_unit_ids" readonly="1">
+                            <list create="0" delete="0">
+                                <field name="product_name" string="Item"/>
+                                <field name="serial_number" string="Serial Number"/>
+                            </list>
+                        </field>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Receive All Items"
+                            type="object" class="oe_highlight" invisible="state == 'print'"/>
+                    <button special="cancel" string="Cancel" invisible="state == 'print'"/>
+                    <button name="action_print_labels" string="Print Labels"
+                            type="object" class="oe_highlight" invisible="state != 'print'"
+                            groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"/>
+                    <button name="action_done" string="Done"
+                            type="object" invisible="state != 'print'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

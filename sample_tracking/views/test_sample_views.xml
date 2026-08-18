@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <!-- Form View -->
+    <record id="view_test_sample_form" model="ir.ui.view">
+        <field name="name">test.sample.form</field>
+        <field name="model">test.sample</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_mark_all_received"
+                        string="Receive All Items"
+                        type="object"
+                        class="oe_highlight"
+                        groups="sample_tracking.group_sample_logistics,sample_tracking.group_sample_manager"
+                        invisible="not has_incoming_lines"/>
+                    <button
+                        name="action_open_bulk_transfer_wizard"
+                        string="Bulk Transfer"
+                        type="object"
+                        invisible="not has_transferable_lines"/>
+                    <button
+                        name="action_open_bulk_return_wizard"
+                        string="Bulk Return"
+                        type="object"
+                        invisible="not has_returnable_lines"/>
+                    <button
+                        name="action_mark_all_tested"
+                        string="Mark All Ready for Return/Scrap"
+                        type="object"
+                        invisible="not has_testable_lines"
+                        confirm="This will mark all In Testing items as Ready for Return/Scrap. Continue?"/>
+                </header>
+                <sheet>
+                    <field name="has_incoming_lines" invisible="1"/>
+                    <field name="has_testable_lines" invisible="1"/>
+                    <field name="has_transferable_lines" invisible="1"/>
+                    <field name="has_returnable_lines" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <div class="text-muted" invisible="not progress_summary">
+                            <field name="progress_summary" readonly="1"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="date_received"/>
+                        </group>
+                        <group string="Customer Address" invisible="not customer_id">
+                            <field name="customer_street" readonly="1"/>
+                            <field name="customer_street2" readonly="1" invisible="not customer_street2"/>
+                            <field name="customer_city" readonly="1"/>
+                            <field name="customer_zip" readonly="1"/>
+                            <field name="customer_state_id" readonly="1"/>
+                            <field name="customer_country_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="line_ids">
+                        <kanban>
+                            <field name="product_name"/>
+                            <field name="quantity"/>
+                            <field name="ordered_quantity"/>
+                            <field name="state"/>
+                            <field name="inspection_result"/>
+                            <field name="current_location_id"/>
+                            <field name="responsible_id"/>
+                            <field name="discrepancy_type"/>
+                            <field name="date_received"/>
+                            <field name="is_split"/>
+                            <field name="kanban_state_group"/>
+                            <templates>
+                                <t t-name="card">
+                                    <!-- Title row: product name + state badge -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <strong class="fs-6">
+                                            <t t-esc="record.product_name.value"/>
+                                        </strong>
+                                        <t t-if="record.kanban_state_group.raw_value == 'transfer_pending'">
+                                            <span class="badge rounded-pill ms-2 flex-shrink-0 text-bg-warning">
+                                                <i class="fa fa-exchange me-1"/>Transfer Pending
+                                            </span>
+                                        </t>
+                                        <t t-if="record.kanban_state_group.raw_value != 'transfer_pending'">
+                                            <span t-att-class="'badge rounded-pill ms-2 flex-shrink-0 ' + ({'incoming': 'text-bg-secondary', 'received': 'text-bg-info', 'in_testing': 'text-bg-warning', 'in_transfer': 'text-bg-warning', 'tested': 'text-bg-primary', 'scrap_pending': 'text-bg-danger', 'pending_return': 'text-bg-warning', 'returned': 'text-bg-success', 'scrapped': 'text-bg-dark'})[record.state.raw_value] || 'text-bg-secondary'">
+                                                <t t-esc="record.state.value"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <!-- Info row: qty / location / owner -->
+                                    <div class="text-muted small d-flex flex-wrap gap-3 mb-2">
+                                        <span>
+                                            <i class="fa fa-cubes me-1"/>
+                                            <t t-esc="record.quantity.value"/>
+                                            <t t-if="record.ordered_quantity.raw_value">
+                                                / <t t-esc="record.ordered_quantity.value"/> ordered
+                                            </t>
+                                        </span>
+                                        <t t-if="record.current_location_id.value">
+                                            <span>
+                                                <i class="fa fa-map-marker me-1"/>
+                                                <t t-esc="record.current_location_id.value"/>
+                                            </span>
+                                        </t>
+                                        <t t-if="record.responsible_id.value">
+                                            <span>
+                                                <i class="fa fa-user me-1"/>
+                                                <t t-esc="record.responsible_id.value"/>
+                                            </span>
+                                        </t>
+                                        <t t-if="record.date_received.value">
+                                            <span>
+                                                <i class="fa fa-calendar me-1"/>
+                                                <t t-esc="record.date_received.value"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <!-- Damaged + discrepancy badges -->
+                                    <div class="d-flex flex-wrap gap-1 mb-3">
+                                        <t t-if="record.inspection_result.raw_value == 'damaged'">
+                                            <span class="badge text-bg-danger">
+                                                <i class="fa fa-exclamation-triangle me-1"/>Damaged
+                                            </span>
+                                        </t>
+                                        <t t-if="record.discrepancy_type.raw_value and record.discrepancy_type.raw_value != 'none'">
+                                            <span class="badge text-bg-warning">
+                                                <i class="fa fa-warning me-1"/>
+                                                <t t-esc="record.discrepancy_type.value"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <!-- Context-aware action buttons -->
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button t-if="record.state.raw_value == 'received' and record.responsible_id.raw_value"
+                                                name="action_pass_inspection" type="object"
+                                                class="btn btn-primary btn-sm"
+                                                data-confirm="Confirm this item has been inspected and is ready for testing? It will be moved to In Testing.">
+                                            <i class="fa fa-flask me-1"/>Start Testing
+                                        </button>
+                                        <button t-if="(record.state.raw_value == 'in_testing' and record.inspection_result.raw_value == 'good') or record.state.raw_value == 'received'"
+                                                name="action_open_transfer_wizard" type="object"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            <i class="fa fa-exchange me-1"/>Transfer
+                                        </button>
+                                        <button t-if="record.state.raw_value == 'in_testing'"
+                                                name="action_mark_tested" type="object"
+                                                class="btn btn-success btn-sm"
+                                                data-confirm="Are you sure all testing is done and this/these sample(s) are ready to be returned or scrapped?">
+                                            <i class="fa fa-check me-1"/>Ready for Return/Scrap
+                                        </button>
+                                        <button t-if="record.state.raw_value == 'tested'"
+                                                name="action_return_to_customer" type="object"
+                                                class="btn btn-outline-warning btn-sm">
+                                            <i class="fa fa-undo me-1"/>Return to Customer
+                                        </button>
+                                        <button t-if="record.state.raw_value == 'tested'"
+                                                name="action_scrap" type="object"
+                                                class="btn btn-outline-danger btn-sm">
+                                            <i class="fa fa-trash me-1"/>Scrap
+                                        </button>
+                                        <button t-if="record.state.raw_value != 'returned' and record.state.raw_value != 'scrapped' and record.state.raw_value != 'scrap_pending' and record.state.raw_value != 'in_transfer' and record.quantity.raw_value > 1"
+                                                name="action_open_split_wizard" type="object"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            <i class="fa fa-scissors me-1"/>Split
+                                        </button>
+                                        <button t-if="record.state.raw_value != 'returned' and record.state.raw_value != 'scrapped' and record.state.raw_value != 'scrap_pending' and record.state.raw_value != 'in_transfer' and record.is_split.raw_value"
+                                                name="action_open_merge_wizard" type="object"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            <i class="fa fa-compress me-1"/>Merge
+                                        </button>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                    <group string="Internal Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_test_sample_list" model="ir.ui.view">
+        <field name="name">test.sample.list</field>
+        <field name="model">test.sample</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="has_transferable_lines" column_invisible="1"/>
+                <field name="has_returnable_lines" column_invisible="1"/>
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="sale_order_id"/>
+                <field name="date_received"/>
+                <button name="action_open_bulk_transfer_wizard" string="Bulk Transfer" type="object"
+                    icon="fa-exchange" title="Bulk Transfer"
+                    invisible="not has_transferable_lines"/>
+                <button name="action_open_bulk_return_wizard" string="Bulk Return" type="object"
+                    icon="fa-undo" title="Bulk Return"
+                    invisible="not has_returnable_lines"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_test_sample_kanban" model="ir.ui.view">
+        <field name="name">test.sample.kanban</field>
+        <field name="model">test.sample</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="date_received"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <strong><field name="name"/></strong>
+                            <div><field name="customer_id"/></div>
+                            <div t-if="record.date_received.value">
+                                <i class="fa fa-calendar me-1"/>
+                                <field name="date_received"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_test_sample_search" model="ir.ui.view">
+        <field name="name">test.sample.search</field>
+        <field name="model">test.sample</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Reference"/>
+                <field name="customer_id"/>
+                <separator/>
+                <filter name="filter_has_incoming" string="Has Incoming Items"
+                    domain="[('line_ids.state', '=', 'incoming')]"/>
+                <filter name="filter_has_in_testing" string="Has Items In Testing"
+                    domain="[('line_ids.state', '=', 'in_testing')]"/>
+                <filter name="filter_has_tested" string="Has Tested Items"
+                    domain="[('line_ids.state', '=', 'tested')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_date" string="Date Received" context="{'group_by': 'date_received:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_test_sample" model="ir.actions.act_window">
+        <field name="name">Test Samples</field>
+        <field name="res_model">test.sample</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_test_sample_search"/>
+    </record>
+
+</data></odoo>

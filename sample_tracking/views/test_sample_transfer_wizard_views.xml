@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+
+    <record id="view_test_sample_transfer_wizard_form" model="ir.ui.view">
+        <field name="name">test.sample.transfer.wizard.form</field>
+        <field name="model">test.sample.transfer.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-info" role="alert">
+                    The item will be marked as <strong>In Transfer</strong> and the selected user will be notified by an activity.
+                    The item is locked until the recipient accepts or declines the transfer.
+                    If declined or cancelled, the item automatically returns to its previous state.
+                    You can optionally link the item to a task on the related sale order.
+                </div>
+                <group>
+                    <field name="line_id" readonly="1"/>
+                    <field name="from_location_id"/>
+                    <field name="to_location_id"/>
+                    <field name="to_user_id" domain="[('active', '=', True), ('share', '=', False)]"/>
+                    <field name="task_id" placeholder="Optional - link to a task"/>
+                    <field name="notes"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Transfer" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</data></odoo>

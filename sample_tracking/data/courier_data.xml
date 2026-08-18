@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate="1" means these records won't be overwritten on module upgrade,
+         so users can rename or delete them without losing their changes. -->
+    <data noupdate="1">
+
+        <record id="courier_dhl" model="test.sample.courier">
+            <field name="name">DHL</field>
+        </record>
+        <record id="courier_schenker" model="test.sample.courier">
+            <field name="name">Schenker</field>
+        </record>
+        <record id="courier_fedex" model="test.sample.courier">
+            <field name="name">FedEx</field>
+        </record>
+        <record id="courier_ups" model="test.sample.courier">
+            <field name="name">UPS</field>
+        </record>
+        <record id="courier_tnt" model="test.sample.courier">
+            <field name="name">TNT</field>
+        </record>
+        <record id="courier_postnord" model="test.sample.courier">
+            <field name="name">PostNord</field>
+        </record>
+
+    </data>
+</odoo>
